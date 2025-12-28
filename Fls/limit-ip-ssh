@@ -50,7 +50,6 @@ do
         nais=3
         passwd -l "$user" > /dev/null
         send_log
-        send_log_owner_bot
 
         # Jadwalkan untuk membuka kembali akun setelah 15 menit
         echo "passwd -u $user" | at now + 15 minutes > /dev/null
