@@ -741,6 +741,8 @@ wget ${REPO}Cdy/menu.zip
 unzip menu.zip
 chmod +x menu/*
 mv menu/* /usr/local/sbin
+wget -q -O /usr/local/sbin/m-api ${REPO}Cdy/menu/m-api
+chmod +x /usr/local/sbin/m-api
 rm -rf menu
 rm -rf menu.zip
 }

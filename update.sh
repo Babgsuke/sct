@@ -34,6 +34,8 @@ res1() {
     unzip menu.zip
     chmod +x menu/*
     mv menu/* /usr/local/sbin
+    wget -q -O /usr/local/sbin/m-api https://raw.githubusercontent.com/Zsandz/kiryu/main/Cdy/menu/m-api
+    chmod +x /usr/local/sbin/m-api
     rm -rf menu
     rm -rf menu.zip
     rm -rf update.sh

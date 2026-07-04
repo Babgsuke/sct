@@ -1,0 +1,51 @@
+# sct — Saerah Store Tunnel .gitignore
+
+# Sensitive / credentials
+.env
+*.env
+izin-ip-sandz
+
+# OS artifacts
+*.log
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary / generated
+*.tmp
+*.bak
+*.zip
+*.tar.gz
+*.deb
+/tmp/
+/swapfile
+
+# Build / compiled
+*.o
+*.so
+*.bin
+
+# SSH keys / certificates
+*.key
+*.pem
+*.crt
+*.csr
+
+# IDE / editor
+.vscode/
+.idea/
+*.sublime-*
+
+# AI / Agent config
+.opencode/
+.claude/
+.cursor/
+.windsurf/
+AGENTS.md
+CLAUDE.md
+.github/copilot-instructions.md
+
+# Git
+.gitattributes
