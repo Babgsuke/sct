@@ -1,7 +1,9 @@
 #!/bin/bash
 # SCT API Server Installer (Node.js)
-# Usage: bash install.sh
+# Usage: bash install.sh           (local)
+#        wget -qO- .../install.sh | bash   (remote)
 
+REPO="https://raw.githubusercontent.com/Babgsuke/sct/main"
 API_DIR="/usr/local/api-server"
 API_PORT="${API_PORT:-5000}"
 
@@ -14,12 +16,35 @@ fi
 
 echo "[+] Copying files to $API_DIR..."
 mkdir -p "$API_DIR" "$API_DIR/controllers" "$API_DIR/models" "$API_DIR/routes" "$API_DIR/middleware" "$API_DIR/utils"
-cp server.js auth.js package.json "$API_DIR/"
-cp controllers/*.js "$API_DIR/controllers/"
-cp models/*.js "$API_DIR/models/"
-cp routes/*.js "$API_DIR/routes/"
-cp middleware/*.js "$API_DIR/middleware/"
-cp utils/*.js "$API_DIR/utils/"
+
+if [[ -f server.js ]]; then
+  # lokal — copy langsung
+  cp server.js auth.js package.json "$API_DIR/"
+  cp controllers/*.js "$API_DIR/controllers/"
+  cp models/*.js "$API_DIR/models/"
+  cp routes/*.js "$API_DIR/routes/"
+  cp middleware/*.js "$API_DIR/middleware/"
+  cp utils/*.js "$API_DIR/utils/"
+else
+  # remote — download dari repo
+  wget -q "$REPO/api/server.js" -O "$API_DIR/server.js"
+  wget -q "$REPO/api/auth.js" -O "$API_DIR/auth.js"
+  wget -q "$REPO/api/package.json" -O "$API_DIR/package.json"
+  for f in controllers/authController.js controllers/botController.js controllers/monitorController.js controllers/serverController.js controllers/sshController.js controllers/systemController.js controllers/xrayController.js; do
+    wget -q "$REPO/api/$f" -O "$API_DIR/$f"
+  done
+  for f in routes/index.js routes/authRoutes.js routes/botRoutes.js routes/monitorRoutes.js routes/serverRoutes.js routes/sshRoutes.js routes/systemRoutes.js routes/xrayRoutes.js; do
+    wget -q "$REPO/api/$f" -O "$API_DIR/$f"
+  done
+  for f in middleware/errorHandler.js middleware/requireAuth.js; do
+    wget -q "$REPO/api/$f" -O "$API_DIR/$f"
+  done
+  for f in models/botModel.js models/serverModel.js models/sshModel.js models/systemModel.js models/xrayModel.js; do
+    wget -q "$REPO/api/$f" -O "$API_DIR/$f"
+  done
+  wget -q "$REPO/api/utils/helpers.js" -O "$API_DIR/utils/helpers.js"
+fi
+
 cd "$API_DIR" && npm install --production
 
 echo "[+] Creating IP whitelist..."
