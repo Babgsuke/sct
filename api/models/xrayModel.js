@@ -1,6 +1,6 @@
 const fs = require('fs');
 const crypto = require('crypto');
-const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate } = require('../utils/helpers');
+const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate, toHtml } = require('../utils/helpers');
 
 const XRAY_CONFIG = '/etc/xray/config.json';
 const WWW_DIR = '/var/www/html';
@@ -128,7 +128,8 @@ function formatXrayOutput(proto, { username, uuid, domain, ip, city, isp, days, 
   ];
 
   const text = lines.join('\n');
-  return { text, base64: Buffer.from(text).toString('base64') };
+  const html = toHtml(lines);
+  return { text, html, base64: Buffer.from(text).toString('base64') };
 }
 
 function createUser(proto, { username, quota = 0, iplimit = 0, days = 30 }) {

@@ -45,4 +45,17 @@ function makeDate(daysFromNow = 0) {
   return new Date(Date.now() + daysFromNow * 86400000).toISOString().split('T')[0];
 }
 
-module.exports = { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, getMyIp, makeDate };
+function toHtml(lines) {
+  return lines.map(line => {
+    const t = line.trim();
+    if (/^[━═\-─]+$/.test(t)) return `<b>${t}</b>`;
+    const idx = line.indexOf(':');
+    if (idx !== -1) {
+      const val = line.slice(idx + 1).trim();
+      if (val) return `<b>${line.slice(0, idx).trim()}:</b> <code>${val}</code>`;
+    }
+    return `<b>${t}</b>`;
+  }).join('\n');
+}
+
+module.exports = { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, getMyIp, makeDate, toHtml };

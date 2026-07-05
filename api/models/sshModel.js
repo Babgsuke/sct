@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate } = require('../utils/helpers');
+const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate, toHtml } = require('../utils/helpers');
 
 const SSH_DB = '/etc/ssh/.ssh.db';
 const LIMIT_DIR = '/etc/kyt/limit/ssh/ip';
@@ -46,7 +46,7 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
   const tnggl = fmt(tgl);
   const expeStr = fmt(expe);
 
-  const text = [
+  const lines = [
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
     '       Format SSH OVPN Account',
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
@@ -71,10 +71,13 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
     `Dibuat Pada      : ${tnggl}`,
     `Berakhir Pada    : ${expeStr}`,
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-  ].join('\n');
+  ];
+  const text = lines.join('\n');
+  const html = toHtml(lines);
 
   return {
     text,
+    html,
     base64: Buffer.from(text).toString('base64'),
   };
 }
