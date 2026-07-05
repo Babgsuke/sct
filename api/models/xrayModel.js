@@ -104,10 +104,12 @@ function formatXrayOutput(proto, { username, uuid, domain, ip, city, isp, days, 
 
   const uidKey = proto === 'vmess' || proto === 'vless' ? 'UUID' : 'Password';
 
+  const DIV = '━━━━━━━━━━━━━━━━━━━━━━━━━';
+
   const lines = [
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
     `      ${LABEL[proto]} XRAY`,
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
     `Remarks       : ${username}`,
     `Domain        : ${domain}`,
     `Quota         : ${quota} GB`,
@@ -118,13 +120,13 @@ function formatXrayOutput(proto, { username, uuid, domain, ip, city, isp, days, 
     `ISP           : ${isp}`,
     `Network       : ws & grpc`,
     ...PATHS[proto],
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-    ...LINKS[proto],
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
+    ...LINKS[proto].flatMap(link => [DIV, link]),
+    DIV,
     `Aktif Selama   : ${days} Hari`,
     `Dibuat Pada    : ${tnggl}`,
     `Berakhir Pada  : ${expeStr}`,
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
   ];
 
   const text = lines.join('\n');

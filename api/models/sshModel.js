@@ -46,13 +46,15 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
   const tnggl = fmt(tgl);
   const expeStr = fmt(expe);
 
+  const DIV = '━━━━━━━━━━━━━━━━━━━━━━━━━';
+
   const lines = [
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
     '       Format SSH OVPN Account',
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
     `Username         : ${username}`,
     `Password         : ${password}`,
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
     `IP               : ${ip}`,
     `Host             : ${domain}`,
     `Port OpenSSH     : 443, 80, 22`,
@@ -64,13 +66,13 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
     `Port OVPN TCP    : 1194`,
     `Port OVPN UDP    : 2200`,
     `BadVPN UDP       : 7100, 7300, 7900`,
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
     `Aktif Selama     : ${days} Hari`,
     `Quota            : ${quota} GB`,
     `IP Limit         : ${iplimit}`,
     `Dibuat Pada      : ${tnggl}`,
     `Berakhir Pada    : ${expeStr}`,
-    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    DIV,
   ];
   const text = lines.join('\n');
   const html = toHtml(lines);
