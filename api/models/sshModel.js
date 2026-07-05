@@ -46,7 +46,7 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
   const tnggl = fmt(tgl);
   const expeStr = fmt(expe);
 
-  const DIV = '━━━━━━━━━━━━━━━━━━━━━━━━━';
+  const DIV = '════════════════════';
 
   const PAYLOADS = [
     `Payload WSS      : GET wss://BUG.COM/ HTTP/1.1[crlf]Host: ${domain}[crlf]Upgrade: websocket[crlf][crlf]`,

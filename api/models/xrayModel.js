@@ -104,7 +104,7 @@ function formatXrayOutput(proto, { username, uuid, domain, ip, city, isp, days, 
 
   const uidKey = proto === 'vmess' || proto === 'vless' ? 'UUID' : 'Password';
 
-  const DIV = '━━━━━━━━━━━━━━━━━━━━━━━━━';
+  const DIV = '════════════════════';
 
   const lines = [
     DIV,
