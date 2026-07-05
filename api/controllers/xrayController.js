@@ -18,7 +18,7 @@ function create(proto) {
   return (req, res) => {
     const result = xrayModel.createUser(proto, req.body || {});
     if (result.error) return res.status(400).json({ error: result.error });
-    res.json({ message: `${LABELS[proto]} created`, data: result.data, text: result.text, base64: result.base64 });
+    res.json({ message: `${LABELS[proto]} created`, data: result.data, text: result.text, html: result.html, base64: result.base64 });
   };
 }
 

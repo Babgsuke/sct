@@ -12,7 +12,7 @@ function listActive(req, res) {
 function create(req, res) {
   const result = sshModel.createUser(req.body || {});
   if (result.error) return res.status(400).json({ error: result.error });
-  res.json({ message: 'SSH user created', data: result.data, text: result.text, base64: result.base64 });
+  res.json({ message: 'SSH user created', data: result.data, text: result.text, html: result.html, base64: result.base64 });
 }
 
 function remove(req, res) {
