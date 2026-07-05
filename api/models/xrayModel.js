@@ -141,7 +141,7 @@ function createUser(proto, { username, quota = 0, iplimit = 0, days = 30 }) {
   const cfg = PROTOCOLS[proto];
 
   cfg.markers.forEach(([marker, trackM]) => {
-    const inject = `\\${trackM} ${username} ${exp}\\n}},{\\"${cfg.uidKey}\\": \\"${uid}\\"${cfg.extra},\\"email\\": \\"${username}\\"`;
+    const inject = `\\${trackM} ${username} ${exp}\\n},{\\"${cfg.uidKey}\\": \\"${uid}\\"${cfg.extra},\\"email\\": \\"${username}\\"`;
     execCmd(`sed -i '/${marker}/a\\${inject}' ${XRAY_CONFIG}`);
   });
 
