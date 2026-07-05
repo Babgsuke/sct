@@ -48,6 +48,13 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
 
   const DIV = '━━━━━━━━━━━━━━━━━━━━━━━━━';
 
+  const PAYLOADS = [
+    `Payload WSS      : GET wss://BUG.COM/ HTTP/1.1[crlf]Host: ${domain}[crlf]Upgrade: websocket[crlf][crlf]`,
+    `Payload WS       : GET / HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]`,
+    `Payload TLS      : GET wss://${domain}/ HTTP/1.1[crlf]Host: [host][crlf]Connection: Upgrade[crlf]User-Agent: [ua][crlf]Upgrade: websocket[crlf][crlf]`,
+    `Payload ENCD     : HEAD / HTTP/1.1[crlf]Host: Masukan_Bug[crlf][crlf]PATCH / HTTP/1.1[crlf]Host: [host][crlf]Upgrade: websocket[crlf][crlf][split]HTTP/ 1[crlf][crlf]`,
+  ];
+
   const lines = [
     DIV,
     '       Format SSH OVPN Account',
@@ -59,13 +66,17 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
     `Host             : ${domain}`,
     `Port OpenSSH     : 443, 80, 22`,
     `Port Dropbear    : 109, 143`,
-    `Port SSH WS      : 80`,
+    `Port SSH WS      : 80, 8080, 2082`,
     `Port SSH SSL WS  : 443`,
+    `Port SSH UDP     : 1-65535`,
+    `Port SSL/TLS     : 443-8443`,
     `Port OVPN WS SSL : 443`,
-    `Port OVPN SSL    : 1194`,
+    `Port OVPN SSL    : 443`,
     `Port OVPN TCP    : 1194`,
     `Port OVPN UDP    : 2200`,
     `BadVPN UDP       : 7100, 7300, 7900`,
+    DIV,
+    ...PAYLOADS.flatMap(p => [DIV, p]),
     DIV,
     `Aktif Selama     : ${days} Hari`,
     `Quota            : ${quota} GB`,
