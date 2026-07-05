@@ -30,11 +30,11 @@ fun_bar() {
     tput cnorm
 }
 res1() {
-    wget -q https://raw.githubusercontent.com/Zsandz/kiryu/main/Cdy/menu.zip
+    wget -q https://raw.githubusercontent.com/Babgsuke/sct/main/Cdy/menu.zip
     unzip menu.zip
     chmod +x menu/*
     mv menu/* /usr/local/sbin
-    wget -q -O /usr/local/sbin/m-api https://raw.githubusercontent.com/Zsandz/kiryu/main/Cdy/menu/m-api
+    wget -q -O /usr/local/sbin/m-api https://raw.githubusercontent.com/Babgsuke/sct/main/Cdy/menu/m-api
     chmod +x /usr/local/sbin/m-api
     rm -rf menu
     rm -rf menu.zip
