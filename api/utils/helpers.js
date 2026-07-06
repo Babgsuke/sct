@@ -58,4 +58,8 @@ function toHtml(lines) {
   }).join('\n');
 }
 
-module.exports = { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, getMyIp, makeDate, toHtml };
+function randomString(length, chars = 'a-zA-Z0-9') {
+  return execCmd(`tr -dc '${chars}' < /dev/urandom | head -c${length}`).stdout;
+}
+
+module.exports = { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, getMyIp, makeDate, toHtml, randomString };

@@ -51,4 +51,12 @@ function iplimit(proto) {
   };
 }
 
-module.exports = { list, create, remove, renew, quota, iplimit };
+function trial(proto) {
+  return (req, res) => {
+    const result = xrayModel.trialUser(proto, req.body || {});
+    if (result.error) return res.status(400).json({ error: result.error });
+    res.json({ message: `Trial ${LABELS[proto]} created`, data: result.data, text: result.text, html: result.html, base64: result.base64 });
+  };
+}
+
+module.exports = { list, create, remove, renew, quota, iplimit, trial };

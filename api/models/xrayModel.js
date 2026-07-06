@@ -1,6 +1,6 @@
 const fs = require('fs');
 const crypto = require('crypto');
-const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate, toHtml } = require('../utils/helpers');
+const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate, toHtml, randomString } = require('../utils/helpers');
 
 const XRAY_CONFIG = '/etc/xray/config.json';
 const WWW_DIR = '/var/www/html';
@@ -58,9 +58,9 @@ function listUsers(proto) {
   });
 }
 
-function formatXrayOutput(proto, { username, uuid, domain, ip, city, isp, days, exp, quota, iplimit }) {
+function formatXrayOutput(proto, { username, uuid, domain, ip, city, isp, days, exp, quota, iplimit, minutes }) {
   const tgl = new Date();
-  const expe = new Date(Date.now() + days * 86400000);
+  const expe = minutes ? new Date(Date.now() + minutes * 60000) : new Date(Date.now() + days * 86400000);
   const fmt = (d) => `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleString('en', { month: 'short' })}, ${d.getFullYear()}`;
   const tnggl = fmt(tgl);
   const expeStr = fmt(expe);
@@ -123,7 +123,7 @@ function formatXrayOutput(proto, { username, uuid, domain, ip, city, isp, days, 
     DIV,
     ...LINKS[proto].flatMap(link => [DIV, link]),
     DIV,
-    `Aktif Selama   : ${days} Hari`,
+    `Aktif Selama   : ${minutes ? `${minutes} Menit` : `${days} Hari`}`,
     `Dibuat Pada    : ${tnggl}`,
     `Berakhir Pada  : ${expeStr}`,
     DIV,
@@ -209,4 +209,49 @@ function setIpLimit(proto, username, iplimit = 0) {
   return iplimit;
 }
 
-module.exports = { listUsers, createUser, deleteUser, renewUser, setQuota, setIpLimit, PROTOCOLS };
+function trialUser(proto, { minutes = 60 } = {}) {
+  const prefixes = { vmess: 'Triall', vless: 'Trial-VL', trojan: 'TrI4L', shadowsocks: 'Tri4L' };
+  const prefix = prefixes[proto] || 'Trial';
+  const username = prefix + randomString(3, '0-9');
+
+  const exists = execCmd(`grep -w '${username}' ${XRAY_CONFIG}`).stdout;
+  if (exists) return { error: `Username ${username} sudah ada (retry)` };
+
+  const uid = crypto.randomUUID();
+  const exp = makeDate(0);
+  const expDate = new Date(Date.now() + minutes * 60000);
+  const expExp = `${String(expDate.getFullYear())}-${String(expDate.getMonth() + 1).padStart(2, '0')}-${String(expDate.getDate()).padStart(2, '0')}`;
+  const cfg = PROTOCOLS[proto];
+
+  cfg.markers.forEach(([marker, trackM]) => {
+    const inject = `\\${trackM} ${username} ${expExp}\\n},{\\"${cfg.uidKey}\\": \\"${uid}\\"${cfg.extra},\\"email\\": \\"${username}\\"`;
+    execCmd(`sed -i '/${marker}/a\\${inject}' ${XRAY_CONFIG}`);
+  });
+
+  execCmd('systemctl restart xray 2>/dev/null');
+
+  const quota = proto === 'shadowsocks' ? 5 : 1;
+  const iplimit = 10;
+  appendLine(DB_FILES[proto], `### ${username} ${expExp} ${uid} ${quota} ${iplimit}`);
+
+  if (iplimit > 0 && LIMIT_DIRS[proto]) {
+    fs.mkdirSync(LIMIT_DIRS[proto], { recursive: true });
+    writeFile(`${LIMIT_DIRS[proto]}/${username}`, String(iplimit));
+  }
+  if (quota > 0) writeFile(`/etc/${proto}/${username}`, String(quota * 1073741824));
+  writeFile(`${WWW_DIR}/${proto}-${username}.txt`,
+    `Username: ${username}\nUUID: ${uid}\nDomain: ${getDomain()}\nExp: ${expExp}\nQuota: ${quota} GB`);
+
+  const domain = getDomain();
+  const ip = execCmd('curl -sS ipv4.icanhazip.com').stdout;
+  const city = readFile('/etc/xray/city');
+  const isp = readFile('/etc/xray/isp');
+
+  const output = formatXrayOutput(proto, {
+    username, uuid: uid, domain, ip, city, isp, days: 0, exp: expExp, quota, iplimit, minutes,
+  });
+
+  return { data: { username, uuid: uid, exp: expExp, quota_gb: String(quota), iplimit: String(iplimit) }, ...output };
+}
+
+module.exports = { listUsers, createUser, deleteUser, renewUser, setQuota, setIpLimit, trialUser, PROTOCOLS };

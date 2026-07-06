@@ -7,6 +7,7 @@ const router = Router();
 router.get('/', requireAuth, ctrl.list);
 router.get('/active', requireAuth, ctrl.listActive);
 router.post('/', requireAuth, ctrl.create);
+router.post('/trial', requireAuth, ctrl.trial);
 router.get('/:username', requireAuth, ctrl.detail);
 router.delete('/:username', requireAuth, ctrl.remove);
 router.put('/:username/renew', requireAuth, ctrl.renew);

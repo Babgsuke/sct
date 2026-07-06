@@ -6,6 +6,7 @@ function makeRouter(proto, basePath) {
   const router = Router();
   router.get('/', requireAuth, ctrl.list(proto));
   router.post('/', requireAuth, ctrl.create(proto));
+  router.post('/trial', requireAuth, ctrl.trial(proto));
   router.delete('/:username', requireAuth, ctrl.remove(proto));
   router.put('/:username/renew', requireAuth, ctrl.renew(proto));
   router.put('/:username/quota', requireAuth, ctrl.quota(proto));

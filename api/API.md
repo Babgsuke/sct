@@ -5,7 +5,7 @@
 - **Stack:** Node.js Express, IP Whitelist auth, file-based storage
 - **Listen:** `127.0.0.1:5000` (localhost, proxied via Nginx)
 - **Auth:** IP Whitelist (`/etc/xray/api-whitelist.conf`) — otomatis membaca IP client
-- **Total:** 39 endpoint (1 public, 38 protected)
+- **Total:** 44 endpoint (1 public, 43 protected)
 - **Format response:** JSON
 
 ---
@@ -264,6 +264,38 @@ Protected. Buat user SSH baru.
 
 ---
 
+### POST /api/ssh/trial
+
+Protected. Buat trial SSH (auto-generate username & password, auto-delete via `at`).
+
+**Request (opsional — default 60 menit):**
+```json
+{ "minutes": 30 }
+```
+
+**Success (201):**
+```json
+{
+  "message": "Trial SSH created",
+  "data": { "username": "Trial-216Y", "exp": "2026-07-06" },
+  "text": "════════════════════\n       Format SSH OVPN Account\n════════════════════\nUsername         : Trial-216Y\nPassword         : 0ZGWpr\n...\nAktif Selama     : 60 Menit\nQuota            : 0 GB\nIP Limit         : 99\nBerakhir Pada    : 06 Jul, 2026\n════════════════════",
+  "html": "<b>...</b>",
+  "base64": "4pWQ4pWQ..."
+}
+```
+
+**Default trial:**
+| Field | Value |
+|---|---|
+| Username | `Trial-` + 4 random `[X-Z0-9]` |
+| Password | 6 random `[a-zA-Z0-9]` |
+| Durasi | 60 menit (bisa diubah via `minutes`) |
+| Quota | 0 GB (unlimited) |
+| IP Limit | 99 |
+| Auto-delete | `at` scheduler setelah `minutes` |
+
+---
+
 ### GET /api/ssh/:username
 
 Protected. Detail user SSH.
@@ -417,6 +449,49 @@ Protected. Buat user VMess baru.
 
 ---
 
+### POST /api/vmess/trial
+
+Protected. Buat trial VMess (auto-generate username, default quota & iplimit).
+
+**Request (opsional — default 60 menit):**
+```json
+{ "minutes": 30 }
+```
+
+**Success (201):**
+```json
+{
+  "message": "Trial VMess created",
+  "data": {
+    "username": "Triall421",
+    "uuid": "f8ed14a0-8f91-46c8-9b11-7a52e3270eac",
+    "exp": "2026-07-06",
+    "quota_gb": "1",
+    "iplimit": "10"
+  },
+  "text": "════════════════════\n      VMESS XRAY\n════════════════════\n...\nAktif Selama   : 30 Menit\nBerakhir Pada  : 06 Jul, 2026\n════════════════════",
+  "html": "<b>...</b>",
+  "base64": "4pWQ4pWQ..."
+}
+```
+
+**Default trial (semua Xray protocol):**
+| Field | Value |
+|---|---|
+| Username | auto-generate per prefix protokol (lihat tabel bawah) |
+| Durasi | 60 menit (bisa diubah via `minutes`) |
+| Quota | 1 GB (shadowsocks: 5 GB) |
+| IP Limit | 10 |
+
+| Protocol | Prefix | Contoh |
+|---|---|---|
+| VMess | `Triall` + 3 digit | `Triall421` |
+| VLESS | `Trial-VL` + 3 digit | `Trial-VL141` |
+| Trojan | `TrI4L` + 3 digit | `TrI4L578` |
+| Shadowsocks | `Tri4L` + 3 digit | `Tri4L238` |
+
+---
+
 ### DELETE /api/vmess/:username
 
 Protected. Hapus user VMess.
@@ -493,10 +568,13 @@ Semua endpoint identik dengan VMess, hanya berbeda path dan label:
 
 ### GET /api/vless
 ### POST /api/vless
+### POST /api/vless/trial
 ### DELETE /api/vless/:username
 ### PUT /api/vless/:username/renew
 ### PUT /api/vless/:username/quota
 ### PUT /api/vless/:username/iplimit
+
+Trial sama dengan VMess: request `{"minutes": 30}`, response `{ "message": "Trial VLESS created", ... }`
 
 Contoh response create:
 ```json
@@ -526,10 +604,13 @@ Contoh response create:
 
 ### GET /api/trojan
 ### POST /api/trojan
+### POST /api/trojan/trial
 ### DELETE /api/trojan/:username
 ### PUT /api/trojan/:username/renew
 ### PUT /api/trojan/:username/quota
 ### PUT /api/trojan/:username/iplimit
+
+Trial sama dengan VMess: request `{"minutes": 30}`, response `{ "message": "Trial Trojan created", ... }`
 
 Contoh response create:
 ```json
@@ -559,10 +640,14 @@ Contoh response create:
 
 ### GET /api/shadowsocks
 ### POST /api/shadowsocks
+### POST /api/shadowsocks/trial
 ### DELETE /api/shadowsocks/:username
 ### PUT /api/shadowsocks/:username/renew
 ### PUT /api/shadowsocks/:username/quota
 ### PUT /api/shadowsocks/:username/iplimit
+
+Trial sama dengan VMess: request `{"minutes": 30}`, response `{ "message": "Trial Shadowsocks created", ... }`
+Catatan: quota default Shadowsocks trial = **5 GB** (bukan 1 GB)
 
 Contoh response create:
 ```json

@@ -45,4 +45,10 @@ function detail(req, res) {
   res.json(result.data);
 }
 
-module.exports = { list, listActive, create, remove, renew, lock, unlock, detail };
+function trial(req, res) {
+  const result = sshModel.trialUser(req.body || {});
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json({ message: 'Trial SSH created', data: result.data, text: result.text, html: result.html, base64: result.base64 });
+}
+
+module.exports = { list, listActive, create, remove, renew, lock, unlock, detail, trial };

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate, toHtml } = require('../utils/helpers');
+const { execCmd, readFile, writeFile, appendLine, removeFile, getDomain, makeDate, toHtml, randomString } = require('../utils/helpers');
 
 const SSH_DB = '/etc/ssh/.ssh.db';
 const LIMIT_DIR = '/etc/kyt/limit/ssh/ip';
@@ -39,9 +39,9 @@ function listActive() {
   return active;
 }
 
-function formatSshOutput({ username, password, domain, ip, days, exp, quota, iplimit }) {
+function formatSshOutput({ username, password, domain, ip, days, exp, quota, iplimit, minutes }) {
   const tgl = new Date();
-  const expe = new Date(Date.now() + days * 86400000);
+  const expe = minutes ? new Date(Date.now() + minutes * 60000) : new Date(Date.now() + days * 86400000);
   const fmt = (d) => `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleString('en', { month: 'short' })}, ${d.getFullYear()}`;
   const tnggl = fmt(tgl);
   const expeStr = fmt(expe);
@@ -78,7 +78,7 @@ function formatSshOutput({ username, password, domain, ip, days, exp, quota, ipl
     DIV,
     ...PAYLOADS.flatMap(p => [DIV, p]),
     DIV,
-    `Aktif Selama     : ${days} Hari`,
+    `Aktif Selama     : ${minutes ? `${minutes} Menit` : `${days} Hari`}`,
     `Quota            : ${quota} GB`,
     `IP Limit         : ${iplimit}`,
     `Dibuat Pada      : ${tnggl}`,
@@ -164,4 +164,32 @@ function detailUser(username) {
   };
 }
 
-module.exports = { listUsers, listActive, createUser, deleteUser, renewUser, lockUser, unlockUser, detailUser };
+function trialUser({ minutes = 60 } = {}) {
+  const username = 'Trial-' + randomString(4, 'X-Z0-9');
+  const password = randomString(6, 'a-zA-Z0-9');
+
+  const expDate = new Date(Date.now() + minutes * 60000);
+  const exp = `${expDate.getFullYear()}-${String(expDate.getMonth() + 1).padStart(2, '0')}-${String(expDate.getDate()).padStart(2, '0')}`;
+
+  const r = execCmd(`useradd -e ${exp} -s /bin/false -M ${username} && echo -e '${password}\\n${password}' | passwd ${username} &>/dev/null`);
+  if (r.code !== 0) return { error: `Gagal: ${r.stderr}` };
+
+  const iplimit = 99;
+  fs.mkdirSync(LIMIT_DIR, { recursive: true });
+  writeFile(`${LIMIT_DIR}/${username}`, String(iplimit));
+
+  const quota = 0;
+  appendLine(SSH_DB, `#ssh# ${username} ${password} ${quota} ${iplimit} ${exp}`);
+  writeFile(`${WWW_DIR}/ssh-${username}.txt`, `Username: ${username}\nPassword: ${password}\nHost: ${getDomain()}\nExp: ${exp}`);
+
+  execCmd(`echo "userdel -f ${username}" | at now + ${minutes} minutes 2>/dev/null`);
+
+  const output = formatSshOutput({
+    username, password, domain: getDomain(), ip: execCmd('curl -sS ipv4.icanhazip.com').stdout,
+    days: 0, exp, quota, iplimit, minutes,
+  });
+
+  return { data: { username, exp }, ...output };
+}
+
+module.exports = { listUsers, listActive, createUser, deleteUser, renewUser, lockUser, unlockUser, detailUser, trialUser };
