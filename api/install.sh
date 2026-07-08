@@ -1,4 +1,9 @@
 #!/bin/bash
+GH_TOKEN="${GH_TOKEN:-}"
+if [[ -n "$GH_TOKEN" ]]; then
+    wget() { command wget --header="Authorization: token $GH_TOKEN" "$@"; }
+    curl() { command curl -H "Authorization: token $GH_TOKEN" "$@"; }
+fi
 # SCT API Server Installer (Node.js)
 # Usage: bash install.sh           (local)
 #        wget -qO- .../install.sh | bash   (remote)

@@ -1,4 +1,9 @@
 #!/bin/bash
+GH_TOKEN="${GH_TOKEN:-}"
+if [[ -n "$GH_TOKEN" ]]; then
+    wget() { command wget --header="Authorization: token $GH_TOKEN" "$@"; }
+    curl() { command curl -H "Authorization: token $GH_TOKEN" "$@"; }
+fi
 dateFromServer=$(curl -v --insecure --silent https://google.com/ 2>&1 | grep Date | sed -e 's/< Date: //')
 biji=`date +"%Y-%m-%d" -d "$dateFromServer"`
 red() { echo -e "\\033[32;1m${*}\\033[0m"; }

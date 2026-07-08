@@ -1,4 +1,9 @@
 #!/bin/bash
+GH_TOKEN="${GH_TOKEN:-}"
+if [[ -n "$GH_TOKEN" ]]; then
+    wget() { command wget --header="Authorization: token $GH_TOKEN" "$@"; }
+    curl() { command curl -H "Authorization: token $GH_TOKEN" "$@"; }
+fi
 export DEBIAN_FRONTEND=noninteractive
 OS=`uname -m`;
 MYIP=$(wget -qO- ipinfo.io/ip);

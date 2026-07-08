@@ -1,3 +1,9 @@
+#!/bin/bash
+GH_TOKEN="${GH_TOKEN:-}"
+if [[ -n "$GH_TOKEN" ]]; then
+    wget() { command wget --header="Authorization: token $GH_TOKEN" "$@"; }
+    curl() { command curl -H "Authorization: token $GH_TOKEN" "$@"; }
+fi
 REPO="https://raw.githubusercontent.com/Zsandz/kiryu/main/"
 wget -q -O /etc/systemd/system/limitvmess.service "${REPO}Fls/limitvmess.service" && chmod +x limitvmess.service >/dev/null 2>&1
 wget -q -O /etc/systemd/system/limitvless.service "${REPO}Fls/limitvless.service" && chmod +x limitvless.service >/dev/null 2>&1
